@@ -1,0 +1,6 @@
+.venv/
+qdrant/.venv/
+session_5/.venv/
+sql_alchemy/.venv/
+qdrant/qdrant_storage
+
