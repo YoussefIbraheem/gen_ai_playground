@@ -65,7 +65,22 @@ def delete_book(id):
          db.session.commit()
          return redirect(url_for('index'))
               
-      
+@app.route('/details/<int:id>')
+def book_details(id):
+     book = Book.query.filter_by(id=id).first_or_404()
+     if book:
+         return render_template("book_details.html",book=book)
+     
+@app.route('/search',methods=['GET','POST'])
+def search_book():
+    if request.method == 'POST':
+        keyword = request.form['keyword']
+        books = Book.query.filter(Book.title.ilike(f'%{keyword}%')).all() 
+        authors = Author.query.filter(Author.name.ilike(f'%{keyword}%')).all()
+        return render_template('search_book.html',books=books,authors=authors)
+        
+    else:
+        return render_template('search_book.html')
             
 
 

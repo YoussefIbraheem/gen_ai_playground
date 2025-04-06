@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-center">Search Books</h1>
+    <form method="POST" action="{{ url_for('search_book') }}" class="my-4">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Search for books..." value="{{ request.args.get('query', '') }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+    {% if books %}
+        <ul>
+        {% for book in books  %}
+        <li>{{book.title}} By {{book.author.name}}</li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <h1>No Book Found</h1>
+        
+    {% endif %}
+    {% if authors %}
+        <ul>
+            {% for author in authors  %}
+                <li>{{author.name}} Creator Of {{author.books[0].title}}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h1>No Author Found</h1>       
+    {% endif %}    
+</div>
+{% endblock %}

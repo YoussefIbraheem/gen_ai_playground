@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ book.title }}</h2>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Author: {{ book.author.name }}</h5>
+            <h6 class="mt-4">Reviews:</h6>
+            <ul class="list-group">
+                {% for review in book.reviews %}
+                    <li class="list-group-item">{{ review.content }}</li>
+                {% else %}
+                    <li class="list-group-item">No reviews available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
