@@ -24,6 +24,7 @@ with app.app_context():
     db.create_all()
 
 from routes import *
+from api import *
 
 if __name__ == "__main__":
     app.run(debug=True)
