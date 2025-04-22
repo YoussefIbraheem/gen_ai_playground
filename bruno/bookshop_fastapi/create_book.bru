@@ -1,0 +1,25 @@
+meta {
+  name: create_book
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://127.0.0.1:8000/apis/books/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "New Vegas",
+    "description": "Game",
+    "author_id": 1
+  }
+}
+
+body:multipart-form {
+  title: New Vegas
+  description: game
+  author_id: 1
+}

@@ -1,0 +1,15 @@
+meta {
+  name: get_book
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://127.0.0.1:8000/apis/books/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}

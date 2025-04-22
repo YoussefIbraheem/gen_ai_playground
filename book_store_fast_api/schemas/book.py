@@ -2,14 +2,14 @@ from pydantic import BaseModel
 from typing import Optional , List
 
 
-class BooksListResponseSchema(BaseModel):
+class BookResponseSchema(BaseModel):
     id: int
     title: str
     description: Optional[str]
     author_id: int
 
 
-class createBookRequestSchema(BaseModel):
+class CreateBookRequestSchema(BaseModel):
     title: str
     description: Optional[str]
     author_id: int

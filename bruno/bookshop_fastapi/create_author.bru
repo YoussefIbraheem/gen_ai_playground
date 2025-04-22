@@ -1,0 +1,18 @@
+meta {
+  name: create_author
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8000/apis/authors/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Hans Landa",
+    "age": 55
+  }
+}
