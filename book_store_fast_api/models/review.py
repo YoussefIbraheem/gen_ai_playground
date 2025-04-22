@@ -1,4 +1,5 @@
-from core.database import *
+from ..core.database import *
+from .book import Book
 
 class Review(Base):
     __tablename__ = "reviews"
@@ -7,4 +8,4 @@ class Review(Base):
     content = Column(Text, nullable=False)
     book_id = Column(Integer, ForeignKey("books.id"))
     
-    book = relationship("Book",back_populates="review")
+    book = relationship("Book",back_populates="reviews")
