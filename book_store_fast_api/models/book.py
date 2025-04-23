@@ -8,7 +8,7 @@ class Book(Base):
     id = Column(Integer , primary_key=True)
     title = Column(String , nullable=False)
     description = Column(Text, nullable=True)
-    author_id = Column(Integer , ForeignKey("authors.id"))
+    author_id = Column(Integer , ForeignKey("authors.id"), nullable=False)
     
     author = relationship("Author",back_populates="books")
    

@@ -6,6 +6,6 @@ class Review(Base):
     
     id = Column(Integer , primary_key=True)
     content = Column(Text, nullable=False)
-    book_id = Column(Integer, ForeignKey("books.id"))
+    book_id = Column(Integer, ForeignKey("books.id"),nullable=False)
     
     book = relationship("Book",back_populates="reviews")

@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, Query
-from ..models import Author
+from .common_dependencies import *
+from ..models.author import Author
 from ..schemas.author import AuthorRequestSchema, List, AuthorResponseSchema
-from sqlalchemy.orm import Session
-from ..core.database import get_db
 
 router = APIRouter(prefix="/apis/authors")
 

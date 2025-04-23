@@ -1,9 +1,6 @@
-from fastapi import APIRouter, Depends, Query
-from ..models import Book, Author
-from ..schemas.book import BookResponseSchema, List, CreateBookRequestSchema
-from sqlalchemy.orm import Session
-from ..core.database import get_db
-
+from .common_dependencies import *
+from ..models.book import Book
+from ..schemas.book import CreateBookRequestSchema , BookResponseSchema , List
 router = APIRouter(prefix="/apis/books")
 
 
