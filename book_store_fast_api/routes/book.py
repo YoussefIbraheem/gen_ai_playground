@@ -18,7 +18,6 @@ def list_books(
     db: Session = Depends(get_db)):
     books = db.query(Book)
     if search:
-        print(search)
         books = books.filter((Book.title.ilike(f'%{search}%')) | (Book.description.ilike(f'%{search}%')))
     if order_by:
         if order_by.lower() == "id":
