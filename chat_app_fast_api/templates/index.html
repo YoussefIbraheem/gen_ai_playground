@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chatbox UI</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .chat-container {
+        max-width: 600px;
+        margin: 50px auto;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .chat-messages {
+        height: 300px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background-color: #ffffff;
+      }
+      .message {
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 20px;
+        max-width: 75%;
+        clear: both;
+      }
+      .message.sender {
+        background-color: #d1e7dd;
+        align-self: flex-end;
+        float: right;
+        text-align: right;
+      }
+      .message.receiver {
+        background-color: #e2e3e5;
+        align-self: flex-start;
+        text-align: center;
+      }
+      .message.chatbot {
+        background-color: #82858d;
+        align-self: flex-start;
+        float: left;
+        text-align: left;
+      }
+      .chat-input {
+        display: flex;
+        gap: 10px;
+      }
+      .chat-input input {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <!-- Room Selection -->
+      <div class="mb-3">
+        <label for="roomSelect" class="form-label">Select Room:</label>
+        <select class="form-select" id="roomSelect">
+          <option selected disabled>Choose a room</option>
+          <option value="room1">Room 1</option>
+          <option value="room2">Room 2</option>
+          <option value="room3">Room 3</option>
+        </select>
+      </div>
+
+      <!-- Join/Leave Buttons -->
+      <div class="mb-3">
+        <button class="btn btn-success me-2" id="joinBtn">Join Room</button>
+        <button class="btn btn-danger" id="leaveBtn">Leave Room</button>
+      </div>
+
+      <!-- Chat Messages -->
+      <div class="chat-messages" id="chatMessages">
+        <!-- Messages will appear here -->
+      </div>
+
+      <!-- Message Input -->
+      <div class="chat-input">
+        <input
+          type="text"
+          class="form-control"
+          id="messageInput"
+          placeholder="Type your message..."
+        />
+        <button class="btn btn-primary" id="sendBtn">Send</button>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script
+      src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+      integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Optional JavaScript to handle message sending -->
+    <script>
+      const socket = io();
+      const messageBox = document.getElementById("chatMessages");
+
+      document.getElementById("sendBtn").addEventListener("click", function () {
+        const messageInput = document.getElementById("messageInput");
+        const messageText = messageInput.value.trim();
+        if (messageText === "") return;
+
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "sender");
+        messageElement.textContent = messageText;
+
+        document.getElementById("chatMessages").appendChild(messageElement);
+        messageInput.value = "";
+        messageInput.focus();
+      });
+
+      // Optional: Add event listeners for Join and Leave buttons
+      document.getElementById("joinBtn").addEventListener("click", function () {
+        const selectedRoom = document.getElementById("roomSelect").value;
+        if (selectedRoom) {
+          socket.emit("join", { room: selectedRoom });
+        } else {
+          alert("Please select a room to join.");
+        }
+      });
+
+      socket.on("joined_room", (socketData) => {
+        console.log("User has joined the room successfully.");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "chatbot");
+        messageElement.textContent = `You have joined the room: ${socketData.room}`;
+        messageBox.appendChild(messageElement);
+        messageBox.scrollTop = messageBox.scrollHeight;
+      });
+
+      document.getElementById("leaveBtn").addEventListener("click", function () {
+          const selectedRoom = document.getElementById("roomSelect").value;
+          if (selectedRoom) {
+           socket.emit("leave", { room: selectedRoom })
+          } else {
+            alert("Please select a room to leave.");
+          }
+        });
+
+      socket.on("left_room",(socketData)=>{
+        console.log("User has left the room successfully.");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "chatbot");
+        messageElement.textContent = `You have left the room: ${socketData.room}`;
+        messageBox.appendChild(messageElement);
+        messageBox.scrollTop = messageBox.scrollHeight;
+      });
+
+    </script>
+  </body>
+</html>
