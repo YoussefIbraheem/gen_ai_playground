@@ -4,11 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chatbox UI</title>
+
     <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
     <style>
       .chat-container {
         max-width: 600px;
@@ -36,18 +35,16 @@
       }
       .message.sender {
         background-color: #d1e7dd;
-        align-self: flex-end;
         float: right;
         text-align: right;
       }
       .message.receiver {
         background-color: #e2e3e5;
-        align-self: flex-start;
-        text-align: center;
+        float: left;
+        text-align: left;
       }
       .message.chatbot {
         background-color: #82858d;
-        align-self: flex-start;
         float: left;
         text-align: left;
       }
@@ -60,8 +57,10 @@
       }
     </style>
   </head>
+
   <body>
     <div class="chat-container">
+      
       <!-- Room Selection -->
       <div class="mb-3">
         <label for="roomSelect" class="form-label">Select Room:</label>
@@ -75,57 +74,69 @@
 
       <!-- Join/Leave Buttons -->
       <div class="mb-3">
-        <button class="btn btn-success me-2" id="joinBtn">Join Room</button>
-        <button class="btn btn-danger" id="leaveBtn">Leave Room</button>
+        <button id="joinBtn" class="btn btn-success me-2" disabled>Join Room</button>
+        <button id="leaveBtn" class="btn btn-danger" disabled>Leave Room</button>
       </div>
 
       <!-- Chat Messages -->
-      <div class="chat-messages" id="chatMessages">
-        <!-- Messages will appear here -->
-      </div>
+      <div id="chatMessages" class="chat-messages"></div>
 
       <!-- Message Input -->
       <div class="chat-input">
-        <input
-          type="text"
-          class="form-control"
-          id="messageInput"
-          placeholder="Type your message..."
-        />
-        <button class="btn btn-primary" id="sendBtn">Send</button>
+        <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." />
+        <button id="sendBtn" class="btn btn-primary" disabled>Send</button>
       </div>
+
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script
-      src="https://cdn.socket.io/4.8.1/socket.io.min.js"
-      integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
-      crossorigin="anonymous"
-    ></script>
+    <!-- Bootstrap JS Bundle and Socket.IO -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Optional JavaScript to handle message sending -->
     <script>
       const socket = io();
+      const roomSelect = document.getElementById("roomSelect");
+      const joinBtn = document.getElementById("joinBtn");
+      const leaveBtn = document.getElementById("leaveBtn");
+      const sendBtn = document.getElementById("sendBtn");
+      const messageInput = document.getElementById("messageInput");
       const messageBox = document.getElementById("chatMessages");
 
-      document.getElementById("sendBtn").addEventListener("click", function () {
-        const messageInput = document.getElementById("messageInput");
-        const messageText = messageInput.value.trim();
-        if (messageText === "") return;
+      let isUserInRoom = false;
 
+      const chatbotMessages = {
+        joinedRoom: (room) => `You have joined the room: ${room}`,
+        leftRoom: (room) => `You have left the room: ${room}`,
+      };
+
+      // Utility functions
+      const createMessageElement = (message, type) => {
         const messageElement = document.createElement("div");
-        messageElement.classList.add("message", "sender");
-        messageElement.textContent = messageText;
+        messageElement.classList.add("message", type);
+        messageElement.textContent = message;
+        return messageElement;
+      };
 
-        document.getElementById("chatMessages").appendChild(messageElement);
-        messageInput.value = "";
-        messageInput.focus();
+      const clearMessages = () => {
+        messageBox.innerHTML = "";
+      };
+
+      const enableControls = ({ join = false, leave = false, send = false, roomSelectEnabled = true }) => {
+        joinBtn.disabled = !join;
+        leaveBtn.disabled = !leave;
+        sendBtn.disabled = !send;
+        roomSelect.disabled = !roomSelectEnabled;
+      };
+
+      // Event Listeners
+      roomSelect.addEventListener("change", () => {
+        enableControls({ join: true, leave: false, send: false, roomSelectEnabled: true });
+        clearMessages();
+        isUserInRoom = false;
       });
 
-      // Optional: Add event listeners for Join and Leave buttons
-      document.getElementById("joinBtn").addEventListener("click", function () {
-        const selectedRoom = document.getElementById("roomSelect").value;
+      joinBtn.addEventListener("click", () => {
+        const selectedRoom = roomSelect.value;
         if (selectedRoom) {
           socket.emit("join", { room: selectedRoom });
         } else {
@@ -133,33 +144,51 @@
         }
       });
 
+      leaveBtn.addEventListener("click", () => {
+        const selectedRoom = roomSelect.value;
+        if (selectedRoom) {
+          socket.emit("leave", { room: selectedRoom });
+        } else {
+          alert("Please select a room to leave.");
+        }
+      });
+
+      sendBtn.addEventListener("click", () => {
+        const selectedRoom = roomSelect.value;
+        const messageText = messageInput.value.trim();
+        if (messageText) {
+          socket.emit("send_message", { message: messageText, room: selectedRoom });
+        }
+      });
+
+      // Socket.IO Handlers
+      socket.on("message_received", (socketData) => {
+        const isSender = socket.id === socketData.session_id;
+        const messageType = isSender ? "sender" : "receiver";
+        const messageElement = createMessageElement(socketData.message, messageType);
+        messageBox.appendChild(messageElement);
+        messageInput.value = "";
+        messageInput.focus();
+      });
+
       socket.on("joined_room", (socketData) => {
         console.log("User has joined the room successfully.");
-        const messageElement = document.createElement("div");
-        messageElement.classList.add("message", "chatbot");
-        messageElement.textContent = `You have joined the room: ${socketData.room}`;
+        isUserInRoom = true;
+        clearMessages();
+        const messageElement = createMessageElement(chatbotMessages.joinedRoom(socketData.room), "chatbot");
         messageBox.appendChild(messageElement);
         messageBox.scrollTop = messageBox.scrollHeight;
+        enableControls({ join: false, leave: true, send: true, roomSelectEnabled: false });
       });
 
-      document.getElementById("leaveBtn").addEventListener("click", function () {
-          const selectedRoom = document.getElementById("roomSelect").value;
-          if (selectedRoom) {
-           socket.emit("leave", { room: selectedRoom })
-          } else {
-            alert("Please select a room to leave.");
-          }
-        });
-
-      socket.on("left_room",(socketData)=>{
+      socket.on("left_room", (socketData) => {
         console.log("User has left the room successfully.");
-        const messageElement = document.createElement("div");
-        messageElement.classList.add("message", "chatbot");
-        messageElement.textContent = `You have left the room: ${socketData.room}`;
+        isUserInRoom = false;
+        const messageElement = createMessageElement(chatbotMessages.leftRoom(socketData.room), "chatbot");
         messageBox.appendChild(messageElement);
         messageBox.scrollTop = messageBox.scrollHeight;
+        enableControls({ join: true, leave: false, send: false, roomSelectEnabled: true });
       });
-
     </script>
   </body>
 </html>

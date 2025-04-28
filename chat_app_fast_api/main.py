@@ -60,3 +60,8 @@ async def send_message(session_id,data):
     room = data['room']
     if room in rooms:
         message = data['message']
+        
+        await sio.emit('message_received',{'room':room,'message':message,'session_id': session_id },room=room)
+        
+        print(f"USER {session_id} sent message: {message}")
+       
