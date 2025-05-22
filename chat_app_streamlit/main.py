@@ -8,7 +8,7 @@ strmlt.set_page_config(layout ="wide")
 strmlt.title("Welcome to Langchain Chat App! 🦜")
 
 with strmlt.sidebar:
-    prompt_template = strmlt.text_area(label="Prompt Template",value="You are a basc assistant named 'Dan'")
+    prompt_template = strmlt.text_area(label="Prompt Template",value="You are a smart assistant named 'Dan'")
     max_tokens = strmlt.slider("Max Tokens",min_value=0.0,max_value=1000.0)
     temprature = strmlt.slider("Temprature",min_value=0.0,max_value=1.0)
     
