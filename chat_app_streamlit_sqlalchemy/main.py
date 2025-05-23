@@ -80,39 +80,3 @@ if prompt_text := strmlt.chat_input("Type your message here..."):
         response_placeholder.markdown(full_response)
         create_message(session,full_response,conversation.id,RoleEnum("ai"))
     
-
-
-
-
-
-
-    #    with strmlt.container():
-    #        strmlt.chat_message("human").write(prompt_text)
-    #        response_placeholder = strmlt.empty()
-    #        full_response = ""
-    #        with strmlt.spinner("Thinking..."):
-    #          for chunk in chain_w_memory.stream(
-    #              { "input":prompt_text },
-    #              config={ "configurable":{"session_id":"conv"} }):
-    #                 full_response += chunk.content
-    #                 response_placeholder.markdown(full_response)
-            
-    #        response_placeholder.markdown(full_response)   
-# # else:
-# #     conversation = create_conversation(session, f"Conversation-{random.randint(0,999)}")
-# #     messages = get_messages(session, conversation.id)
-# #     strmlt.session_state.active_conv_id = conversation.id
-
-# with strmlt.container():
-#     for message in messages:
-#         strmlt.chat_message(message.role.value).write(message.body)
-#     response_placeholder = strmlt.chat_message("ai").empty()
-#     full_response = ""
-#     # with strmlt.spinner("Thinking..."):
-#     #     for chunk in chain_w_history.stream(
-#     #         {"input": prompt_text},
-#     #         config={"configurable": {"session_id": f"{conversation.id}"}},
-#     #     ):
-#     #         full_response += chunk.content
-#     #         response_placeholder.write(full_response)
-#     #     create_message(session, full_response, conversation.id, role=RoleEnum("ai"))
