@@ -1,4 +1,4 @@
-import streamlit as strmlt , requests 
+import streamlit as strmlt, requests
 from db import (
     create_conversation,
     get_conversations,
@@ -6,9 +6,10 @@ from db import (
     get_session,
     get_messages,
     create_message,
+    delete_conversation,
     RoleEnum,
 )
-from ai import get_chain_w_history
+from ai import get_chain_w_history , summerize_chat_content
 from langchain.memory import StreamlitChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 import random
@@ -29,13 +30,23 @@ conversations_id = [conv.id for conv in conversations]
 
 with strmlt.sidebar:
     selected_conv = strmlt.radio(
-        "Select a Conversation", options=["New Conversation"] + conversations_titles
+        "Select a Conversation",
+        options=["New Conversation"] + conversations_titles,
     )
     if selected_conv == "New Conversation":
         strmlt.session_state.active_conv_id = None
     elif selected_conv in conversations_titles:
         idx = conversations_titles.index(selected_conv)
         strmlt.session_state.active_conv_id = conversations_id[idx]
+        strmlt.button(
+            "Delete Selected Conversation",
+            key=f"conv_del-{strmlt.session_state.active_conv_id}",
+            on_click=delete_conversation,
+            kwargs={
+                "session": session,
+                "conversation_id": strmlt.session_state.active_conv_id,
+            },
+        )
 
 
 if strmlt.session_state.active_conv_id is not None:
@@ -61,22 +72,24 @@ with strmlt.container(key=current_container_key):
     if messages is not None:
         for message in messages:
             strmlt.chat_message(message.role.value).write(message.body)
-    
+
 if prompt_text := strmlt.chat_input("Type your message here..."):
-        if conversation == None:
-            new_conv_title = prompt_text[0:3]
-            conversation = create_conversation(session,new_conv_title)
-        create_message(session,prompt_text,conversation.id,RoleEnum("human"))
-        strmlt.chat_message("human").write(prompt_text)
-        response_placeholder = strmlt.chat_message("ai").empty()
-        full_response = ""
-        with strmlt.spinner("Thinking..."):
-            for chunk in chain_w_history.stream(
-                { "input":prompt_text },
-                config={ "configurable":{"session_id":"conv"} }):
-                   full_response += chunk.content
-                   response_placeholder.markdown(full_response)
-            
-        response_placeholder.markdown(full_response)
-        create_message(session,full_response,conversation.id,RoleEnum("ai"))
-    
+    if conversation == None:
+        new_conv_title = summerize_chat_content(prompt_text)
+        conversation = create_conversation(session, new_conv_title.content)
+    create_message(session, prompt_text, conversation.id, RoleEnum("human"))
+    strmlt.chat_message("human").write(prompt_text)
+    response_placeholder = strmlt.chat_message("ai").empty()
+    full_response = ""
+    with strmlt.spinner("Thinking..."):
+        for chunk in chain_w_history.stream(
+            {"input": prompt_text}, config={"configurable": {"session_id": "conv"}}
+        ):
+            full_response += chunk.content
+            response_placeholder.markdown(full_response)
+
+    response_placeholder.markdown(full_response)
+    create_message(session, full_response, conversation.id, RoleEnum("ai"))
+    strmlt.rerun()
+
+

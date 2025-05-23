@@ -81,6 +81,12 @@ def get_conversation(session, conversation_id):
     return session.query(Conversation).filter_by(id=conversation_id).first()
 
 
+def delete_conversation(session,conversation_id):
+    conversation = session.query(Conversation).filter_by(id=conversation_id).first()
+    session.delete(conversation)
+    session.commit()
+
+
 def get_messages(session, conversation_id):
     return session.query(Message).filter_by(conversation_id=conversation_id).order_by(Message.created_at.asc()).all()
     
