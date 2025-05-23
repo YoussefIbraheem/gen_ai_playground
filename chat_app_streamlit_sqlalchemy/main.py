@@ -27,9 +27,10 @@ conversations = get_conversations(session=session)
 conversations_titles = [conv.title for conv in conversations]
 conversations_id = [conv.id for conv in conversations]
 
-
+strmlt.session_state.require_reset = False
 strmlt.session_state.active_conv_id = None
 previous_conv_id = strmlt.session_state.active_conv_id
+
 
 with strmlt.sidebar:
     selected_conv = strmlt.radio(
@@ -89,6 +90,7 @@ if prompt_text := strmlt.chat_input("Type your message here..."):
     if conversation == None:
         new_conv_title = summerize_chat_content(prompt_text)
         conversation = create_conversation(session, new_conv_title.content)
+        strmlt.session_state.require_reset = True
     create_message(session, prompt_text, conversation.id, RoleEnum("human"))
     strmlt.chat_message("human").write(prompt_text)
     response_placeholder = strmlt.chat_message("ai").empty()
@@ -102,6 +104,7 @@ if prompt_text := strmlt.chat_input("Type your message here..."):
 
     response_placeholder.markdown(full_response)
     create_message(session, full_response, conversation.id, RoleEnum("ai"))
-    strmlt.rerun()
+    if strmlt.session_state.require_reset:
+        strmlt.rerun()
 
 
