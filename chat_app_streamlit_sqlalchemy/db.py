@@ -30,7 +30,7 @@ class Conversation(Base):
     created_at = Column(DateTime, default=datetime.now().timestamp())
 
     messages = relationship(
-        "Messages", back_populates="conversation", cascade="all, delete-orphan"
+        "Message", back_populates="conversation", cascade="all, delete-orphan"
     )
 
 
