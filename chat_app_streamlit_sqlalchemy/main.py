@@ -28,14 +28,15 @@ conversations_titles = [conv.title for conv in conversations]
 conversations_id = [conv.id for conv in conversations]
 
 
+strmlt.session_state.active_conv_id = None
+previous_conv_id = strmlt.session_state.active_conv_id
+
 with strmlt.sidebar:
     selected_conv = strmlt.radio(
         "Select a Conversation",
         options=["New Conversation"] + conversations_titles,
     )
-    if selected_conv == "New Conversation":
-        strmlt.session_state.active_conv_id = None
-    elif selected_conv in conversations_titles:
+    if selected_conv in conversations_titles:
         idx = conversations_titles.index(selected_conv)
         strmlt.session_state.active_conv_id = conversations_id[idx]
         strmlt.button(
@@ -54,8 +55,19 @@ if strmlt.session_state.active_conv_id is not None:
     conv_messages = get_messages(session, active_conv_id)
     conv_title = f"Conversation-{random.randint(0,999)}"
 
-
 msgs = StreamlitChatMessageHistory(key="history")
+
+if previous_conv_id != strmlt.session_state.active_conv_id:
+    msgs.clear()
+    
+    for msg in conv_messages:
+        if msg.role.value == RoleEnum.HUMAN.value:
+            msgs.add_user_message(msg.body)
+        elif msg.role.value == RoleEnum.AI.value:
+            msgs.add_ai_message(msg.body)    
+
+
+
 
 chain_w_history = get_chain_w_history(msgs)
 
@@ -83,7 +95,7 @@ if prompt_text := strmlt.chat_input("Type your message here..."):
     full_response = ""
     with strmlt.spinner("Thinking..."):
         for chunk in chain_w_history.stream(
-            {"input": prompt_text}, config={"configurable": {"session_id": "conv"}}
+            {"input": prompt_text}, config={"configurable": {"session_id": f"conv-{conversation.id}"}}
         ):
             full_response += chunk.content
             response_placeholder.markdown(full_response)

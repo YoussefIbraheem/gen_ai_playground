@@ -21,7 +21,7 @@ summerize_chain = summerize_prompt | llm
 
 def get_chain_w_history(messages):
     return RunnableWithMessageHistory(
-        chain, lambda session_id: messages, history_messages_key="chat_hitory"
+        chain, lambda session_id: messages, history_messages_key="history"
     )
 
 def summerize_chat_content(context):
