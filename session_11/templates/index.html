@@ -94,52 +94,74 @@
         const $chatBtn = $("#chatBtn");
         const $chatInput = $("#chatInput");
         const $chatMessages = $("#chatMessages");
+        var ai_chat_bubble = $();
 
-        function create_message(option,content) {
-
-            const validOptions = {
-                HUMAN: 'human',
-                AI: 'ai'
-            };
+        function create_message(option, content) {
+          const validOptions = {
+            HUMAN: "human",
+            AI: "ai",
+          };
 
           if (!option || !Object.values(validOptions).includes(option)) {
-                throw new Error(`Invalid option: ${option}. Allowed options are: ${Object.values(Options).join(', ')}`);
-            }
+            throw new Error(
+              `Invalid option: ${option}. Allowed options are: ${Object.values(
+                Options
+              ).join(", ")}`
+            );
+          }
           if (!content) return;
 
           const message = content;
 
-          if(option == validOptions.HUMAN)
-            {
-                $("<div>")
-                  .addClass("chat-right")
-                  .append($("<div>").addClass("chat-bubble").text(message))
-                  .appendTo($chatMessages);
-                $chatInput.val('')
-            }
-         else
-            {
-                $("<div>")
-                  .addClass("chat-left")
-                  .append($("<div>").addClass("chat-bubble").html(message))
-                  .appendTo($chatMessages);
-            }
-         
-         
-         return message
-        
-        }
+          if (option == validOptions.HUMAN) {
+            $("<div>")
+              .addClass("chat-right")
+              .append($("<div>").addClass("chat-bubble").text(message))
+              .appendTo($chatMessages);
+            $chatInput.val("");
+          } else {
+            $("<div>")
+              .addClass("chat-left")
+              .append($("<div>").addClass("chat-bubble").html(message))
+              .appendTo($chatMessages);
+          }
 
+          return message;
+        }
 
         $("#chatForm").on("submit", function (e) {
           e.preventDefault();
-          const message = create_message("human",$chatInput.val().trim());
-          socket.emit('human-message-send',{message:message})
+          const message = create_message("human", $chatInput.val().trim());
+          socket.emit("human-message-send", { message: message });
         });
 
-        socket.on('llm_reponse',function(data){
-            llm_response = marked.parse(data['llm_response']) 
-            create_message("ai",llm_response)
+        socket.on("llm_reponse", function (data) {
+          llm_response = marked.parse(data["llm_response"]);
+          create_message("ai", llm_response);
+        });
+
+        socket.on("generate_ai_chat_bubble", function () {
+          const $spinner = $("<div>")
+          .addClass("spinner-grow")
+          .css({'width':'3rem','height':'3rem'})
+          ai_chat_bubble = $("<div>")
+            .addClass("chat-left")
+            .append($("<div>").addClass("chat-bubble").append($spinner))
+            .appendTo($chatMessages);
+        });
+
+        socket.on("llm_response_chunk", function (data) {
+          const chunk = data["llm_response_chunk"];
+          ai_chat_bubble.find(".spinner-grow").remove();
+          let current = ai_chat_bubble.children(".chat-bubble").html() || ""; //getter
+          current += chunk;
+          ai_chat_bubble.children(".chat-bubble").html(current);
+          $chatMessages.scrollTop($chatMessages[0].scrollHeight); //follow the writing
+        });
+
+        socket.on("generate_ai_chat_bubble_over",function(){
+          content = ai_chat_bubble.children(".chat-bubble").html() || ""
+          ai_chat_bubble.children(".chat-bubble").html(marked.parse(content))
         })
 
 

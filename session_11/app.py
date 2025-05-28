@@ -1,6 +1,6 @@
 from flask import Flask , render_template
-from flask_socketio import SocketIO
-from ai import send_message_to_llm
+from flask_socketio import SocketIO , emit
+from ai import send_message_to_llm , chain , HumanMessage , AIMessage , chat_history
 app = Flask(__name__)
 socketio = SocketIO(app)
 
@@ -15,8 +15,16 @@ def index():
 def handle_human_message(data):
     message = data['message']
     if message:
-        llm_response = send_message_to_llm(message)
-        socketio.emit('llm_reponse',{'llm_response':llm_response.content})
+        chat_history.append(HumanMessage(message))
+        llm_response = chain.stream({'input':message,'history':chat_history})
+        whole_response = " "
+        emit('generate_ai_chat_bubble')
+        for chunk in llm_response:
+            whole_response.join(chunk.content) 
+            emit('llm_response_chunk',{'llm_response_chunk':chunk.content})
+        chat_history.append(AIMessage(whole_response))    
+        emit('generate_ai_chat_bubble_over')    
+            
         
 
 if __name__ == "__main__":
