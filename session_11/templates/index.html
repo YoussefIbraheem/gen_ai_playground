@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Two-Sided Chat Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: #f8f9fa;
+      }
+      .chat-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 16px;
+      }
+      .chat-bubble {
+        padding: 12px 18px;
+        border-radius: 18px;
+        margin-bottom: 12px;
+        max-width: 75%;
+        display: inline-block;
+        word-break: break-word;
+      }
+      .chat-left .chat-bubble {
+        background: #e2e3e5;
+        color: #333;
+        border-bottom-left-radius: 0;
+      }
+      .chat-right {
+        text-align: right;
+      }
+      .chat-right .chat-bubble {
+        background: #0d6efd;
+        color: #fff;
+        border-bottom-right-radius: 0;
+      }
+      .chat-input-area {
+        display: flex;
+        gap: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <!-- Example messages -->
+
+        <!-- More messages will go here -->
+      </div>
+      <form class="chat-input-area" id="chatForm" autocomplete="off">
+        <input
+          type="text"
+          class="form-control"
+          id="chatInput"
+          placeholder="Type your message..."
+        />
+        <button class="btn btn-primary" id="chatBtn" type="submit">Send</button>
+      </form>
+    </div>
+    <!-- Bootstrap JS CDN (Optional, for Bootstrap features) -->
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+      integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+      // Simple JS to append messages for demonstration
+      $(document).ready(function () {
+        const socket = io();
+        const $chatBtn = $("#chatBtn");
+        const $chatInput = $("#chatInput");
+        const $chatMessages = $("#chatMessages");
+
+        function create_message(option,content) {
+
+            const validOptions = {
+                HUMAN: 'human',
+                AI: 'ai'
+            };
+
+          if (!option || !Object.values(validOptions).includes(option)) {
+                throw new Error(`Invalid option: ${option}. Allowed options are: ${Object.values(Options).join(', ')}`);
+            }
+          if (!content) return;
+
+          const message = content;
+
+          if(option == validOptions.HUMAN)
+            {
+                $("<div>")
+                  .addClass("chat-right")
+                  .append($("<div>").addClass("chat-bubble").text(message))
+                  .appendTo($chatMessages);
+                $chatInput.val('')
+            }
+         else
+            {
+                $("<div>")
+                  .addClass("chat-left")
+                  .append($("<div>").addClass("chat-bubble").html(message))
+                  .appendTo($chatMessages);
+            }
+         
+         
+         return message
+        
+        }
+
+
+        $("#chatForm").on("submit", function (e) {
+          e.preventDefault();
+          const message = create_message("human",$chatInput.val().trim());
+          socket.emit('human-message-send',{message:message})
+        });
+
+        socket.on('llm_reponse',function(data){
+            llm_response = marked.parse(data['llm_response']) 
+            create_message("ai",llm_response)
+        })
+
+
+      });
+    </script>
+  </body>
+</html>
