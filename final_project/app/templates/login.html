@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-//create a login page with a form that has username and password fields, and a submit button
+//create a login page with a form that has email and password fields, and a submit button
 {% block title %}Login{% endblock %}
 
 {% block content %}
@@ -8,16 +8,36 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2 class="text-center">Login</h2>
-            <form method="POST" action="/login">
+            <form method="POST" action="login">
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    {{form.email.label(class="form-label")}}
+                    {{form.email(class="form-control", id="email", required=True)}}
+                    
+                     {% if form.email.errors %}
+                <div class="alert alert-danger mt-3">
+                    {% for error in form.email.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    {{form.password.label(class="form-label")}}
+                    {{form.password(class="form-control", id="password", required=True)}}
+                    
+                    {% if form.password.errors %}
+                <div class="alert alert-danger mt-3">
+                    {% for error in form.password.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                {% endif %}
+                <button type="submit" class="btn btn-primary w-100 my-3">Login</button>
+                <div class="mt-3 text-center">
+                    <a href="register">Don't have an account? Register here</a>
+                </div>
+               
+
             </form>
         </div>
     </div>

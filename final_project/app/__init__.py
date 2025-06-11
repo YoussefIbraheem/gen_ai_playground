@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
+from flask import Flask , render_template
 from flask_socketio import SocketIO
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -25,6 +25,10 @@ def create_app(config_class=Config):
         from models import User  # Import User model here to avoid circular imports
         return User.query.get(int(user_id))
     
+    
+    @app.route('/')
+    def index():
+        return render_template('index.html')
     
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
