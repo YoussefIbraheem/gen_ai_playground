@@ -4,10 +4,11 @@ content %}
   <div class="row justify-content-center">
     <div class="col-md-6">
       <h2 class="text-center">Register</h2>
-      <form method="POST" action="register">
+      <form method="POST">
+        {{ form.hidden_tag() }}
         <div class="mb-3">
-          {{ form.username.label(class="form-label") }} {{
-          form.username(class="form-control", id="username", required=True) }}
+          {{form.username.label(class="form-label")}}
+          {{form.username(class="form-control", id="username", required=True)}}
           {% if form.username.errors %}
           <div class="alert alert-danger mt-3">
             {% for error in form.username.errors %}
@@ -17,9 +18,9 @@ content %}
           {% endif %}
         </div>
         <div class="mb-3">
-          {{ form.email.label(class="form-label") }} {{
-          form.email(class="form-control", id="email", required=True) }} {% if
-          form.email.errors %}
+          {{form.email.label(class="form-label")}}
+          {{form.email(class="form-control", id="email", required=True)}} 
+          {% if form.email.errors %}
           <div class="alert alert-danger mt-3">
             {% for error in form.email.errors %}
             <p>{{ error }}</p>
@@ -28,8 +29,8 @@ content %}
           {% endif %}
         </div>
         <div class="mb-3">
-          {{ form.password.label(class="form-label") }} {{
-          form.password(class="form-control", id="password", required=True) }}
+          {{ form.password.label(class="form-label") }} 
+          {{form.password(class="form-control", id="password", required=True) }}
           {% if form.password.errors %}
           <div class="alert alert-danger mt-3">
             {% for error in form.password.errors %}
@@ -39,9 +40,9 @@ content %}
           {% endif %}
         </div>
         <div class="mb-3">
-          {{ form.confirm_password.label(class="form-label") }} {{
-          form.confirm_password(class="form-control", id="confirm_password",
-          required=True) }} {% if form.confirm_password.errors %}
+          {{ form.confirm_password.label(class="form-label") }} 
+          {{form.confirm_password(class="form-control", id="confirm_password", required=True) }} 
+          {% if form.confirm_password.errors %}
           <div class="alert alert-danger mt-3">
             {% for error in form.confirm_password.errors %}
             <p>{{ error }}</p>
@@ -49,7 +50,7 @@ content %}
           </div>
           {% endif %}
         </div>
-        <button type="submit" class="btn btn-primary w-100">Register</button>
+        {{ form.submit(class="btn btn-primary w-100 my-3") }}
       </form>
     </div>
   </div>

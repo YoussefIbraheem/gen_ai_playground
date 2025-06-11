@@ -4,7 +4,7 @@ from flask_login import UserMixin
 from datetime import datetime
 from app import db
 
-class User(db.Model):
+class User(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
@@ -12,13 +12,16 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     role = db.Column(db.String(20), default='customer')
     
-    chat_sessions = db.relationship('ChatSession', backref='user', lazy=True)
-    
     def set_password(self, password):
         self.password = Bcrypt().generate_password_hash(password).decode('utf-8')
         
     def check_password(self, password):
         return Bcrypt().check_password_hash(self.password, password)
+    
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+        
     
     def has_access_to_table(self, table_name):
         role_permissions = {
@@ -47,7 +50,6 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     
-    category = db.relationship('Category', backref=db.backref('products', lazy=True))
     
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -65,7 +67,6 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     
     user = db.relationship('User', backref=db.backref('orders', lazy=True))
-    order_items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
