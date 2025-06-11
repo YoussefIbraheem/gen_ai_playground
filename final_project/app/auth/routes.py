@@ -13,8 +13,8 @@ def login():
         if user:   
             login_user(user)
             flash('Login successful!', 'success')
-            return redirect(url_for('index'))  # Redirect to a protected route or home page
-    return render_template('login.html', form=form)
+            return redirect(url_for('chat.index'))  # Redirect to a protected route or home page
+    return render_template('auth/login.html', form=form)
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -26,11 +26,11 @@ def register():
         redirect_url = url_for('auth.login')
         flash('Registration successful! You can now log in.', 'success')
         return redirect(redirect_url)
-    return render_template('register.html', form=form)
+    return render_template('auth/register.html', form=form)
 
 @bp.route('/logout')
 def logout():
     logout_user()
     flash('You have been logged out.', 'info')
-    return redirect(url_for('login'))  # Redirect to login page after logout
+    return redirect(url_for('auth.login'))  # Redirect to login page after logout
 

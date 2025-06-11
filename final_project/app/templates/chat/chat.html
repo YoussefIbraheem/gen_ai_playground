@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}E-Commerce Data Chat Agent{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow rounded-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">E-Commerce Data Chat Agent</h5>
+      <small class="text-muted">Ask questions about your business data</small>
+    </div>
+    <div class="card-body">
+      <div class="mb-4">
+        <h6 class="fw-bold">Welcome to your E-Commerce Data Chat Agent!</h6>
+        <p class="mb-1">You can ask questions about:</p>
+        <ul class="row">
+          <li class="col-md-4"><strong>Sales:</strong> "What's our total revenue?"</li>
+          <li class="col-md-4"><strong>Products:</strong> "Top selling products?"</li>
+          <li class="col-md-4"><strong>Customers:</strong> "New customers this month?"</li>
+          <li class="col-md-4"><strong>Inventory:</strong> "Low stock products?"</li>
+          <li class="col-md-4"><strong>Orders:</strong> "Pending orders count?"</li>
+          <li class="col-md-4"><strong>Analytics:</strong> "Average order value?"</li>
+        </ul>
+      </div>
+
+      <div id="chat-window" class="bg-light p-3 rounded mb-3" style="height: 300px; overflow-y: auto;">
+        <!-- Messages will be appended here using JS or Jinja2 -->
+      </div>
+
+      <form method="POST" id="chat-form" class="d-flex">
+        <input type="text" name="message" class="form-control me-2" placeholder="Ask a question..." required>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
