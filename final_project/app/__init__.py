@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask , render_template
+from flask import Flask , render_template , redirect, url_for
 from flask_socketio import SocketIO
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -28,7 +28,7 @@ def create_app(config_class=Config):
     
     @app.route('/')
     def index():
-        return render_template('chat/chat.html')
+        return redirect(url_for('auth.login'))
     
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')

@@ -1,11 +1,47 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}E-Commerce Data Chat Agent{% endblock
+%} {% block styles %}
+<style>
+  .chat-window {
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #ffffff;
+  }
+  .message {
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 75%;
+    clear: both;
+  }
+  .message.sender {
+    background-color: #d1e7dd;
+    float: right;
+    text-align: right;
+  }
 
-{% block title %}E-Commerce Data Chat Agent{% endblock %}
-
-{% block content %}
+  .message.chatbot {
+    background-color: #82858d;
+    float: left;
+    text-align: left;
+  }
+  .chat-input {
+    display: flex;
+    gap: 10px;
+  }
+  .chat-input input {
+    flex: 1;
+  }
+</style>
+{% endblock %} {% block content %}
 <div class="container mt-5">
   <div class="card shadow rounded-4">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <div
+      class="card-header bg-light d-flex justify-content-between align-items-center"
+    >
       <h5 class="mb-0">E-Commerce Data Chat Agent</h5>
       <small class="text-muted">Ask questions about your business data</small>
     </div>
@@ -14,24 +50,77 @@
         <h6 class="fw-bold">Welcome to your E-Commerce Data Chat Agent!</h6>
         <p class="mb-1">You can ask questions about:</p>
         <ul class="row">
-          <li class="col-md-4"><strong>Sales:</strong> "What's our total revenue?"</li>
-          <li class="col-md-4"><strong>Products:</strong> "Top selling products?"</li>
-          <li class="col-md-4"><strong>Customers:</strong> "New customers this month?"</li>
-          <li class="col-md-4"><strong>Inventory:</strong> "Low stock products?"</li>
-          <li class="col-md-4"><strong>Orders:</strong> "Pending orders count?"</li>
-          <li class="col-md-4"><strong>Analytics:</strong> "Average order value?"</li>
+          <li class="col-md-4">
+            <strong>Sales:</strong> "What's our total revenue?"
+          </li>
+          <li class="col-md-4">
+            <strong>Products:</strong> "Top selling products?"
+          </li>
+          <li class="col-md-4">
+            <strong>Customers:</strong> "New customers this month?"
+          </li>
+          <li class="col-md-4">
+            <strong>Inventory:</strong> "Low stock products?"
+          </li>
+          <li class="col-md-4">
+            <strong>Orders:</strong> "Pending orders count?"
+          </li>
+          <li class="col-md-4">
+            <strong>Analytics:</strong> "Average order value?"
+          </li>
         </ul>
       </div>
 
-      <div id="chat-window" class="bg-light p-3 rounded mb-3" style="height: 300px; overflow-y: auto;">
+      <div
+        id="chatWindow"
+        class="bg-light p-3 rounded mb-3 chat-window"
+        style="height: 300px; overflow-y: auto"
+      >
         <!-- Messages will be appended here using JS or Jinja2 -->
       </div>
 
-      <form method="POST" id="chat-form" class="d-flex">
-        <input type="text" name="message" class="form-control me-2" placeholder="Ask a question..." required>
-        <button type="submit" class="btn btn-primary">Send</button>
+      <form method="POST" id="chatForm" class="d-flex">
+        <input
+          id="chatInput"
+          type="text"
+          name="message"
+          class="form-control me-2 chat-input"
+          placeholder="Ask a question..."
+          required
+        />
+        <button id="submitBtn" type="submit" class="btn btn-primary">
+          Send
+        </button>
       </form>
     </div>
   </div>
 </div>
+{% endblock %} 
+{% block scripts %}
+<script
+      src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+      integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+      crossorigin="anonymous"
+></script>
+<script>
+$(document).ready(function(){
+  const socket = io()
+  const $chatWindow = $('#chatWindow')
+  const $chatInput = $('#chatInput')
+  const $submitBtn = $('#submitBtn')
+  const $chatForm = $('#chatForm')
+
+  $submitBtn.on('click', function(){
+    let message = $chatInput.val().trim()
+    if(!message) return;
+    var message_content = $('<div class="message sender"></div>')
+    message_content.text(message)
+    $chatWindow.append(message_content)
+    $chatInput.val('') // Clear input field
+    $chatWindow.scrollTop($chatWindow[0].scrollHeight)
+    socket.emit('sending-message', { message: message })
+  })
+
+})
+</script>
 {% endblock %}
