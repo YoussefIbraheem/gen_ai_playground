@@ -55,7 +55,6 @@ def initialize_sql_agent():
 
     prompt_template = PromptTemplate.from_template(
         prompt,
-        handle_parsing_errors=True,
         partial_variables={
             "existing_tables": ", ".join(existing_tables),
             "available_tables": ", ".join(available_tables),
@@ -63,7 +62,6 @@ def initialize_sql_agent():
             "tools_names": toolkit.get_tools(),
             "tool_names": toolkit.get_tools(),
             "agent_scratchpad": "",
-            "input": "{input}",
         },
     )
 
@@ -72,6 +70,7 @@ def initialize_sql_agent():
         toolkit=toolkit,
         prompt=prompt_template,
         verbose=True,
+        input_variables=["input"],
     )
     
     agent.handle_parsing_errors = True

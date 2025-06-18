@@ -14,7 +14,8 @@ def chat():
 
 @socketio.on('sending-message')
 def handle_send_message(data):
-    message = data
+    message = data['message']
     print(f"Received message: {message}")
     agent = initialize_sql_agent()
-    agent.invoke({"input": message})
+    response = agent.invoke({"input": message})
+    print(f"Agent response: {response['output']}")
