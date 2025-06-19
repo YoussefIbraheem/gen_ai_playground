@@ -31,44 +31,30 @@ def initialize_sql_agent():
 
     toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
 
-    prompt = f"""You are a helpful AI assistant that can answer questions about the database. You have access to the following tables: {available_tables}. Use the SQLDatabaseToolkit to interact with the database.
-    * CRITICAL INSTRUCTIONS:
-    1. Never Mention SQL Query or SQL Database in your response.
-    2. Always respond in a conversational manner.
-    3. Never mention the name of the database or the tables in your response.
-    4. Always provide a direct answer to the user's question.
-    5. If the user asks for a list of tables, columns, or any other metadata, politely decline and say you can only answer questions about the data in the tables.
-    6. Do not provide any information about the database structure, such as table names or column names.
-    7. Do not run any SQL queries that are not directly related to answering the user's question.
+    # prompt = f"""You are a helpful AI assistant that can answer questions about the database. You have access to the following tables: {available_tables}. Use the SQLDatabaseToolkit to interact with the database.
+    # * CRITICAL INSTRUCTIONS:
+    # 1. Never Mention SQL Query or SQL Database in your response.
+    # 2. Always respond in a conversational manner.
+    # 3. Never mention the name of the database or the tables in your response.
+    # """
     
-    * AVAILABLE DATA TABLES TO BE ACCESSIBLE BY YOU ONLY: {available_tables}
+    # prompt is disabled as llam3.2:3b is not compatible with custom prompts and require an LLM that supports ReAct
     
-    * RESPONSE TEMPLATES:
-    - for counts: **Metric**: [Number] [context]
-    -for percentage: **Metric**: [Number]% [context]
-    - for averages: **Metric**: [Number] [context]
-    - for sums: **Metric**: [Number] [context]
-    - for revenue: **Metric**: [Number] [context]
-    - for currency: **Metric**: [Number] [context]
-    - for profit: **Metric**: [Number] [context]
-    """
-
-    prompt_template = PromptTemplate.from_template(
-        prompt,
-        partial_variables={
-            "existing_tables": ", ".join(existing_tables),
-            "available_tables": ", ".join(available_tables),
-            "tools": toolkit.get_tools(),
-            "tools_names": toolkit.get_tools(),
-            "tool_names": toolkit.get_tools(),
-            "agent_scratchpad": "",
-        },
-    )
+    # prompt_template = PromptTemplate.from_template(
+    #     prompt,
+    #     partial_variables={
+    #         "existing_tables": ", ".join(existing_tables),
+    #         "available_tables": ", ".join(available_tables),
+    #         "tools": toolkit.get_tools(),
+    #         "tools_names": toolkit.get_tools(),
+    #         "tool_names": toolkit.get_tools(),
+    #         "agent_scratchpad": "",
+    #     },
+    # )
 
     agent = create_sql_agent(
         llm=llm,
         toolkit=toolkit,
-        prompt=prompt_template,
         verbose=True,
         input_variables=["input"],
     )
