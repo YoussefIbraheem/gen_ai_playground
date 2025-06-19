@@ -36,6 +36,9 @@ def create_app(config_class=Config):
     from app.chat import bp as chat_bp
     app.register_blueprint(chat_bp)
     
+    from .commands.seed import seed_db
+    app.cli.add_command(seed_db)  # Register the seed command
+    
     
     return app
     
