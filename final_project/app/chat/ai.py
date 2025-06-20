@@ -26,8 +26,10 @@ def initialize_sql_agent():
         include_tables=available_tables,
         sample_rows_in_table_info=5,
     )
+    
+    print(Config.MODEL_NAME)
 
-    llm = ChatOllama(model="llama3.2:3b")
+    llm = ChatOllama(model=Config.MODEL_NAME, temperature=0.1, max_tokens=1000)
 
     toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
 
