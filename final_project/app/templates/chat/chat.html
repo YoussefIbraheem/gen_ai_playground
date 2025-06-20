@@ -10,6 +10,27 @@
     border-radius: 5px;
     background-color: #ffffff;
   }
+
+  /* HTML: <div class="loader"></div> */
+  .loader {
+    width: 15px;
+    aspect-ratio: 1;
+    background: #000;
+    border-radius: 50%;
+    animation: l6 1s infinite linear alternate;
+  }
+  @keyframes l6 {
+    0% {
+      box-shadow: 15px 0, -25px 0;
+    }
+    50% {
+      box-shadow: 15px 0, -15px 0;
+    }
+    100% {
+      box-shadow: 25px 0, -15px 0;
+    }
+  }
+
   .message {
     margin-bottom: 10px;
     padding: 10px 15px;
@@ -95,32 +116,74 @@
     </div>
   </div>
 </div>
-{% endblock %} 
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script
-      src="https://cdn.socket.io/4.8.1/socket.io.min.js"
-      integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
-      crossorigin="anonymous"
+  src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+  integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+  crossorigin="anonymous"
 ></script>
 <script>
-$(document).ready(function(){
-  const socket = io()
-  const $chatWindow = $('#chatWindow')
-  const $chatInput = $('#chatInput')
-  const $submitBtn = $('#submitBtn')
-  const $chatForm = $('#chatForm')
+  $(document).ready(function () {
+    const socket = io();
+    const $chatWindow = $("#chatWindow");
+    const $chatInput = $("#chatInput");
+    const $submitBtn = $("#submitBtn");
+    const $chatForm = $("#chatForm");
 
-  $submitBtn.on('click', function(){
-    let message = $chatInput.val().trim()
-    if(!message) return;
-    var message_content = $('<div class="message sender"></div>')
-    message_content.text(message)
-    $chatWindow.append(message_content)
-    $chatInput.val('') // Clear input field
-    $chatWindow.scrollTop($chatWindow[0].scrollHeight)
-    socket.emit('sending-message', { message: message })
-  })
+    function appendUserMessage(message) {
+      var message_content = $('<div class="message sender"></div>');
+      message_content.text(message);
+      $chatWindow.append(message_content);
+      $chatWindow.scrollTop($chatWindow[0].scrollHeight);
+    }
 
-})
+    function appendChatbotMessage(message) {
+      var message_content = $(".chatbot").last();
+      if (message_content.length != 0) {
+        message_content.remove();
+        message_content.text(message);
+        $chatWindow.append(message_content);
+        $chatWindow.scrollTop($chatWindow[0].scrollHeight);
+      } else {
+        message_content = $('<div class="message chatbot"></div>');
+        message_content.text(message);
+        $chatWindow.append(message_content);
+        $chatWindow.scrollTop($chatWindow[0].scrollHeight);
+      }
+    }
+
+    function appendSpinner() {
+      var spinner = $(
+        '<div class="loader" role="status"></div>'
+      );
+      var message_content = $('<div class="message chatbot"></div>');
+      message_content.append(spinner);
+      $chatWindow.append(message_content);
+      $chatWindow.scrollTop($chatWindow[0].scrollHeight);
+    }
+
+    $submitBtn.on("click", function () {
+      let message = $chatInput.val().trim();
+      if (!message) return;
+      appendUserMessage(message);
+      $chatInput.val("");
+      socket.emit("sending-message", { message: message });
+      appendSpinner();
+      $chatInput.prop("disabled", true);
+      $submitBtn.prop("disabled", true);
+    });
+
+    $chatForm.on("submit", function (e) {
+      e.preventDefault();
+      $submitBtn.click();
+    });
+
+    socket.on("receive-message", function (data) {
+      let message = data.message;
+      appendChatbotMessage(message);
+      $chatInput.prop("disabled", false);
+      $submitBtn.prop("disabled", false);
+    });
+  });
 </script>
 {% endblock %}
