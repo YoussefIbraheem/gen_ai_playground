@@ -1,4 +1,4 @@
-import streamlit as strmlt, requests
+import streamlit as strmlt
 from db import (
     create_conversation,
     get_conversations,
@@ -19,6 +19,7 @@ strmlt.title(
     "Welcome to Langchain Chat App :rainbow[Smarter Version]! 🦜🔗🧠",
     help="It will remeber your past conversastions!",
 )
+
 
 session = get_session()
 
